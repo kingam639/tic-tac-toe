@@ -96,7 +96,7 @@ def make_list_of_free_fields(board):
 
 def victory_for(board, sign):
     """The function analyzes the board's status in order to check if
-    the player using 'O's or 'X's has won the game"""
+    the player using 'O's or 'X's has won the game and returns True if won or False if didn't win."""
 
     # tablica z kombinacjami pol, ktore daja zwyciestwo
     winning_fields = [[board[0][0], board[0][1], board[0][2]], [board[1][0], board[1][1], board[1][2]],
@@ -117,17 +117,13 @@ def victory_for(board, sign):
             # jesli podczas przejscia przez kazde pole trafi na symbol inny niz ten ktory sprawdza,
             # nastepuje zmiana flagi na False
             if field != sign:
-                # print(field, sign)
-                # WAZNE flaga zmienia sie na False, a tzn ze gdy petla for bedzie chciala przejsc
-                # przez kolejne pola w aktualnej kombinacji, nie musi sprawdzac kolejnych znakow - zastanawiam
-                # sie na ile to jest wydajne, bo w koncu petla for chce sprawdzac do konca
                 is_equal = False
-        # po przejsciu przez kombinacje trzech pol sprawdzam, czy flaga jest caly czas true,
-        # co oznacza ze uzytkownik wygral
+        # po przejsciu przez kombinacje trzech pol sprawdzam, czy flaga jest caly czas True,
+        # co oznacza ze uzytkownik wygral i zwracam True
         if is_equal:
-            return "Wygrałeś!"
-    # jesli po przejsciu przez kazda kombinacje nie znaleziono trzech znakow, funkcja zwraca komunikat o braku wygranej
-    return "Nie wygrales"
+            return True
+    # jesli po przejsciu przez kazda kombinacje nie znaleziono trzech znakow, funkcja zwraca False
+    return False
 
     # WAZNE to byla moja druga wersja petli for i chcialabym jeszcze do niej wrocic i poprawic ja... w tym tygodniu
     # petla for przechodzi przez tablice z mozliwymi wygranymi kombinacjami na planszy
@@ -193,24 +189,50 @@ def draw_move(board):
 # zastępuje input() — musiałabyś ją jakoś "podłączyć" w miejsce input() w trakcie testu
 # (to wracamy do tematu mock/nadpisywania input, o którym mówiłyśmy).
 
-
+# tablica z poczatkowym ukladem pol, komputer zaczyna wiec jego pierwszy znak "X" jest juz na srodku
 game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
-# players_moves = {"O": enter_move, "X": draw_move}
-# petla
-while True:
-    # wyswietlanie tablicy
-    display_board(game_board)
-    # ruch uzytkownika
-    # players_moves["O"](game_board)
-    enter_move(game_board)
-    # sprawdzenie, czy uzytkownik wygral
-    if victory_for(game_board, "O") == "Wygrałeś!":
-       break
-    # sprawdzenie, czy jest remis
-    if make_list_of_free_fields(game_board) == []:
-        break
-    # ruch komputera
-    # draw_move(game_board)
+# w slowniku players_move funkcje enter_move i draw_move sa tylko obiektami - a ich nazwa
+# to zwykła etykieta wskazująca na obiekt funkcji w pamięci
+# slownik pozwala na obsluge ....
+players_moves = {"O": enter_move, "X": draw_move}
+
+# glowna petla gry
+# poczatkowy stan flagi, gdy gra trwa
+end_of_game = False
+# petla while dziala dopoki zmienna end_of_game nie zmieni sie na True, czyli jeden z graczy wygra lub bedzie remis
+while not end_of_game:
+
+    # petla for idzie po slowniku w kolejnosci w jakiej zostaly wpisane klucze,
+    # dlatego po ruchu komputera na starcie pierwszy ruch wykonuje "O", czyli użytkownik
+    for key, value in players_moves.items():
+
+        # wyswietlanie tablicy gry
+        display_board(game_board)
+        # wywolanie funkcji ze slownika players_move: do zmiennej value zostaje przypisana funkcja enter_move -
+        # gdy przypada kolej na ruch uzytkownika, draw_move - gdy przypada kolej na ruch komputera;
+        # () oznaczaja, ze funkcje zostaja wywolane
+        value(game_board)
+
+        # sprawdzenie, czy gracz, ktory wykonal ruch wygral
+        if victory_for(game_board, key):
+            # wyswietlenie tablicy, gdy jeden z graczy wygral
+            display_board(game_board)
+            print("Zwyciezyl gracz", key)
+            # break konczy petle for, end_of_game zmienia wartosc na True, zmienna while sprawdza jej wartosc
+            # przy kolejnej iteracji i wtedy konczy swoje dzialenie
+            end_of_game = True
+            break
+
+        # sprawdzenie, czy jest remis
+        if make_list_of_free_fields(game_board) == []:
+            # wyswietlenie tablicy, gdy jest remis
+            display_board(game_board)
+            print("Jest remis. Zaden z graczy nie wygral.")
+            # break konczy petle for, end_of_game zmienia wartosc na True, zmienna while sprawdza jej wartosc
+            # przy kolejnej iteracji i wtedy konczy swoje dzialenie
+            end_of_game = True
+            break
+
 
 # TESTY
 
