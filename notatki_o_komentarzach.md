@@ -1,9 +1,14 @@
-Jak pisać komentarze
-Kod mówi CO, komentarz mówi DLACZEGO. Komentarz „pętla for przechodzi przez listę" powtarza to, co widać w kodzie. Komentarz „komputer zaczyna, więc jego pierwszy znak jest już na środku" mówi coś, czego z kodu nie wyczytasz. Sprawdzian: skreśl komentarz w myślach. Jeśli niczego nie brakuje, był zbędny.
-Pisz dla kogoś, kto zna Pythona, ale nie zna Twojego projektu. Tym kimś jesteś Ty za trzy tygodnie, dokładnie tak jak dzisiaj. Nie tłumacz, czym jest for czy .index(). Tłumacz decyzje: dlaczego ta flaga, dlaczego ten słownik, dlaczego ta kolejność.
-Komentuj bloki i niejasne miejsca, nie każdą linijkę. Jeden komentarz nad kilkoma linijkami, które razem robią jedną rzecz, jest lepszy niż pięć komentarzy po jednej linijce.
-Niech nazwy zmiennych robią część roboty. is_equal czy free_fields wyjaśniają się same. Im lepsze nazwy, tym mniej komentarzy potrzeba.
-Docstring i komentarz to dwie różne rzeczy. Docstring opisuje umowę funkcji z zewnątrz: co robi, co dostaje, co zwraca. Komentarze w środku opisują, jak i dlaczego to robi. Kiedy zmieniasz kod, zmień też docstring, tak jak z victory_for, które zwraca teraz True/False.
-Nie trzymaj w komentarzach swoich rozmyślań ani starych wersji kodu. Do tego masz teraz Gita. Niedokończone rzeczy oznaczaj # TODO: ..., a nie kropkami w rodzaju „jakis opis...".
-Krótko. Jedna myśl na jedną linijkę, najlepiej do 80-100 znaków.
-Jak pracować: napisz kod, a potem przeczytaj go tak, jakbyś widziała go pierwszy raz. Oznacz miejsca, w których się zatrzymałaś, i tylko tam dodaj komentarz. Warto też pisać je samodzielnie, a mnie prosić o opinię, bo w ten sposób ćwiczysz dokładnie tę umiejętność. Wiele Twoich komentarzy tłumaczy mechanizmy Pythona (np. co robi index). Na etapie nauki to dobre, bo utrwala wiedzę. W pracy zawodowej większość z nich by się skróciła.
+Twoje komentarze wcale nie są „masakra”. Widać po nich, że rozumiesz, co robi każda linijka, a to jest trudniejsza część. Moje są po prostu bardziej ekonomiczne. Oto jak do tego dojść:
+
+**Jak pisać komentarze**
+
+1. **Kod mówi CO, komentarz mówi DLACZEGO.** Komentarz „pętla for przechodzi przez listę" powtarza to, co widać w kodzie. Komentarz „komputer zaczyna, więc jego pierwszy znak jest już na środku" mówi coś, czego z kodu nie wyczytasz. Sprawdzian: skreśl komentarz w myślach. Jeśli niczego nie brakuje, był zbędny.
+2. **Pisz dla kogoś, kto zna Pythona, ale nie zna Twojego projektu.** Tym kimś jesteś Ty za trzy tygodnie, dokładnie tak jak dzisiaj. Nie tłumacz, czym jest `for` czy `.index()`. Tłumacz decyzje: dlaczego ta flaga, dlaczego ten słownik, dlaczego ta kolejność.
+3. **Komentuj bloki i niejasne miejsca, nie każdą linijkę.** Jeden komentarz nad kilkoma linijkami, które razem robią jedną rzecz, jest lepszy niż pięć komentarzy po jednej linijce.
+4. **Niech nazwy zmiennych robią część roboty.** `is_equal` czy `free_fields` wyjaśniają się same. Im lepsze nazwy, tym mniej komentarzy potrzeba.
+5. **Docstring i komentarz to dwie różne rzeczy.** Docstring opisuje umowę funkcji z zewnątrz: co robi, co dostaje, co zwraca. Komentarze w środku opisują, jak i dlaczego to robi. Kiedy zmieniasz kod, zmień też docstring, tak jak z `victory_for`, które zwraca teraz `True`/`False`.
+6. **Nie trzymaj w komentarzach swoich rozmyślań ani starych wersji kodu.** Do tego masz teraz Gita. Niedokończone rzeczy oznaczaj `# TODO: ...`, a nie kropkami w rodzaju „jakis opis...".
+7. **Krótko.** Jedna myśl na jedną linijkę, najlepiej do 80-100 znaków.
+
+Jak pracować: napisz kod, a potem przeczytaj go tak, jakbyś widziała go pierwszy raz. Oznacz miejsca, w których się zatrzymałaś, i tylko tam dodaj komentarz. Warto też pisać je samodzielnie, a mnie prosić o opinię, bo w ten sposób ćwiczysz dokładnie tę umiejętność. Wiele Twoich komentarzy tłumaczy mechanizmy Pythona (np. co robi `index`). Na etapie nauki to dobre, bo utrwala wiedzę. W pracy zawodowej większość z nich by się skróciła.
+
