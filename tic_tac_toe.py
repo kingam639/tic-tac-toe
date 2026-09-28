@@ -1,14 +1,5 @@
 from random import randrange
 
-# WAZNE do zrobienia:
-# Czego jeszcze brakuje, żeby to było grywalną całością: nie widzę tu jeszcze głównej pętli gry,
-# która na przemian wywołuje enter_move i draw_move, po każdym ruchu sprawdza victory_for (dla obu graczy)
-# oraz sprawdza remis (czy make_list_of_free_fields zwraca pustą listę), i dopiero wtedy kończy grę.
-# To jest ten brakujący "spoiwo" między funkcjami.
-# user_moves_examples świetnie nadaje się do testów enter_move, ale zwróć uwagę, że sama w sobie nie
-# zastępuje input() — musiałabyś ją jakoś "podłączyć" w miejsce input() w trakcie testu
-# (to wracamy do tematu mock/nadpisywania input, o którym mówiłyśmy).
-
 
 def user_moves_examples(user_moves_board, used_move):
     """The function chooses the user's move from the list of sample user moves and checks if the user
@@ -192,6 +183,34 @@ def draw_move(board):
     #         computer_move = randrange(1,10)
 
 
+# Przebieg gry
+# WAZNE do zrobienia:
+# Czego jeszcze brakuje, żeby to było grywalną całością: nie widzę tu jeszcze głównej pętli gry,
+# która na przemian wywołuje enter_move i draw_move, po każdym ruchu sprawdza victory_for (dla obu graczy)
+# oraz sprawdza remis (czy make_list_of_free_fields zwraca pustą listę), i dopiero wtedy kończy grę.
+# To jest ten brakujący "spoiwo" między funkcjami.
+# user_moves_examples świetnie nadaje się do testów enter_move, ale zwróć uwagę, że sama w sobie nie
+# zastępuje input() — musiałabyś ją jakoś "podłączyć" w miejsce input() w trakcie testu
+# (to wracamy do tematu mock/nadpisywania input, o którym mówiłyśmy).
+
+
+game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+# players_moves = {"O": enter_move, "X": draw_move}
+# petla
+while True:
+    # wyswietlanie tablicy
+    display_board(game_board)
+    # ruch uzytkownika
+    # players_moves["O"](game_board)
+    enter_move(game_board)
+    # sprawdzenie, czy uzytkownik wygral
+    if victory_for(game_board, "O") == "Wygrałeś!":
+       break
+    # sprawdzenie, czy jest remis
+    if make_list_of_free_fields(game_board) == []:
+        break
+    # ruch komputera
+    # draw_move(game_board)
 
 # TESTY
 
