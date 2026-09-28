@@ -189,47 +189,49 @@ def draw_move(board):
 # zastępuje input() — musiałabyś ją jakoś "podłączyć" w miejsce input() w trakcie testu
 # (to wracamy do tematu mock/nadpisywania input, o którym mówiłyśmy).
 
-# tablica z poczatkowym ukladem pol, komputer zaczyna wiec jego pierwszy znak "X" jest juz na srodku
+# poczatkowa plansza: komputer zaczyna, wiec jego pierwszy znak "X" jest juz na srodku
 game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
-# w slowniku players_move funkcje enter_move i draw_move sa tylko obiektami - a ich nazwa
-# to zwykła etykieta wskazująca na obiekt funkcji w pamięci
-# slownik pozwala na obsluge ....
+
+# slownik laczy znak gracza z funkcja, ktora wykonuje jego ruch:
+# "O" (uzytkownik) -> enter_move, "X" (komputer) -> draw_move.
+# Nazwy funkcji sa tu tylko odwolaniami do nich (bez nawiasow), wiec nic sie jeszcze nie wykonuje.
+# Dzieki temu jeden kod w petli obsluguje obu graczy.
 players_moves = {"O": enter_move, "X": draw_move}
 
-# glowna petla gry
-# poczatkowy stan flagi, gdy gra trwa
+# flaga informuje, czy gra sie zakonczyla; False oznacza, ze gra trwa
 end_of_game = False
-# petla while dziala dopoki zmienna end_of_game nie zmieni sie na True, czyli jeden z graczy wygra lub bedzie remis
+
+# glowna petla gry: kazdy jej obrot to jedna runda, czyli ruch uzytkownika i ruch komputera.
+# Konczy sie, gdy flaga zmieni wartosc na True (wygrana lub remis)
 while not end_of_game:
 
-    # petla for idzie po slowniku w kolejnosci w jakiej zostaly wpisane klucze,
-    # dlatego po ruchu komputera na starcie pierwszy ruch wykonuje "O", czyli użytkownik
+    # petla for bierze gracza po kolei ze slownika, w kolejnosci wpisania kluczy.
+    # key to znak gracza, a value to funkcja, ktora wykonuje jego ruch.
+    # Komputer zrobil juz pierwszy ruch, wiec w pierwszej rundzie zaczyna "O"
     for key, value in players_moves.items():
 
-        # wyswietlanie tablicy gry
+        # pokazanie planszy przed ruchem gracza
         display_board(game_board)
-        # wywolanie funkcji ze slownika players_move: do zmiennej value zostaje przypisana funkcja enter_move -
-        # gdy przypada kolej na ruch uzytkownika, draw_move - gdy przypada kolej na ruch komputera;
-        # () oznaczaja, ze funkcje zostaja wywolane
+        # value to funkcja przypisana graczowi, a nawiasy ja wywoluja:
+        # dla "O" wykona sie enter_move, dla "X" draw_move
         value(game_board)
 
-        # sprawdzenie, czy gracz, ktory wykonal ruch wygral
+        # sprawdzenie, czy gracz, ktory przed chwila zagral, wygral
         if victory_for(game_board, key):
-            # wyswietlenie tablicy, gdy jeden z graczy wygral
+            # pokazanie planszy z ostatnim, wygrywajacym ruchem
             display_board(game_board)
             print("Zwyciezyl gracz", key)
-            # break konczy petle for, end_of_game zmienia wartosc na True, zmienna while sprawdza jej wartosc
-            # przy kolejnej iteracji i wtedy konczy swoje dzialenie
+            # break przerywa petle for, a flaga zatrzymuje petle while
+            # przy sprawdzaniu warunku na poczatku kolejnego obrotu
             end_of_game = True
             break
 
-        # sprawdzenie, czy jest remis
+        # sprawdzenie remisu: brak wolnych pol, a nikt nie wygral
         if make_list_of_free_fields(game_board) == []:
-            # wyswietlenie tablicy, gdy jest remis
+            # pokazanie zapelnionej planszy
             display_board(game_board)
             print("Jest remis. Zaden z graczy nie wygral.")
-            # break konczy petle for, end_of_game zmienia wartosc na True, zmienna while sprawdza jej wartosc
-            # przy kolejnej iteracji i wtedy konczy swoje dzialenie
+            # tak samo jak przy wygranej: break konczy for, flaga konczy while
             end_of_game = True
             break
 
