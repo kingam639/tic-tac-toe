@@ -1,5 +1,3 @@
-Twoje komentarze wcale nie są „masakra”. Widać po nich, że rozumiesz, co robi każda linijka, a to jest trudniejsza część. Moje są po prostu bardziej ekonomiczne. Oto jak do tego dojść:
-
 **Jak pisać komentarze**
 
 1. **Kod mówi CO, komentarz mówi DLACZEGO.** Komentarz „pętla for przechodzi przez listę" powtarza to, co widać w kodzie. Komentarz „komputer zaczyna, więc jego pierwszy znak jest już na środku" mówi coś, czego z kodu nie wyczytasz. Sprawdzian: skreśl komentarz w myślach. Jeśli niczego nie brakuje, był zbędny.
