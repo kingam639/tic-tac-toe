@@ -2,6 +2,11 @@ from random import randrange
 
 
 def user_moves_examples(user_moves_board, used_move):
+    # TODO: Jedna drobna uwaga: w pierwszym zdaniu masz "user_moves_board" opisane jako listę
+    #  "do przetestowania", ale w tej chwili ta sama lista pełni już inną rolę w Twojej nowej
+    #  pętli (źródło do konsumowania, a nie "dane testowe" w sensie assertów). To nie błąd,
+    #  tylko do rozważenia, czy nazwa parametru i jej opis nadal dobrze pasują do tego, jak
+    #  faktycznie jej teraz używasz — możesz to zostawić bez zmian, to nie jest konieczne.
     """The function chooses the user's move from the list of sample user moves and checks if the user
     hasn't used the move yet. If not, it returns the move to imitate the user's move."""
     # petla for przechodzi przez kazdy element na liscie z przykladowymi ruchami uzytkownika
@@ -27,7 +32,7 @@ def display_board(board):
         print("|       |       |       |")
     print("+-------+-------+-------+")
 
-def enter_move(board):
+def enter_move(board, user_move=None):
     """The function accepts the board's current status, asks the user about their move,
     checks the input, and updates the board according to the user's decision."""
     # użytkownik wykonuje ruch wprowadzając numer pola, w którym chce postawić znak
@@ -40,7 +45,13 @@ def enter_move(board):
     while free_field:
         # blok try except sprawdza czy uzytkownik wpisal int
         try:
-            user_move = int(input("Wprowadź swój ruch: "))
+            # instrukcja sprawdza, czy podczas wywolywania funkcji wprowadzono argument user_move "na sztywno"
+            # jesli nie, pyta uzytkownika o ruch
+            if user_move is None:
+                user_move = input("Wprowadź swój ruch: ")
+            # konwersja ruchu uzytkownika na int, by sprawdzic, czy wytypowal odpowiednie pole na znak "O"
+            user_move = int(user_move)
+
         # jesli uzytkownik nie wpisal int funkcja wyrzuci wyjatek,
         # a nastepnie wroci na poczatek funkcji i ponownie uruchmi petle while
         except ValueError:
@@ -71,6 +82,28 @@ def enter_move(board):
             # uzytkownik wpisal liczbe nie znajdujaca sie w zakresie 1-9
             else:
                 print("Twój ruch nie miesci sie w zakresie 1-9. Sprobuj ponownie.")
+
+
+user_moves_board = [1, 3, "c", 12, -7, 4, 8]
+used_move = []
+# poczatkowa plansza: komputer zaczyna, wiec jego pierwszy znak "X" jest juz na srodku
+game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+
+enter_move(game_board, -7)
+# flaga free_moves ustawiona na True, jesli zmieni wartosc na False oznacza to, ze
+# wszystkie przykladowe ruchy uzytkownika zostaly przetestowane
+# free_moves = True
+# while free_moves:
+#     # funkcja user_moves_examples zwraca ruch uzytkownika do przetestowania
+#     move = user_moves_examples(user_moves_board, used_move)
+#     enter_move(board=game_board, user_move=move)
+#     # jesli listy user_moves_board i used_move sa takie same, tzn ze wszytskie
+#     # ruchy uzytkownika zostaly przetestowane i to koniec testow
+#     print(move)
+#     if user_moves_board == used_move:
+#         free_moves = False
+#         print("Wszystkie ruchy uzytkownika zostaly przetestowane.")
+#     # print(used_move)
 
 
 def make_list_of_free_fields(board):
@@ -179,66 +212,7 @@ def draw_move(board):
     #         computer_move = randrange(1,10)
 
 
-# Przebieg gry
-# WAZNE do zrobienia:
-# Czego jeszcze brakuje, żeby to było grywalną całością: nie widzę tu jeszcze głównej pętli gry,
-# która na przemian wywołuje enter_move i draw_move, po każdym ruchu sprawdza victory_for (dla obu graczy)
-# oraz sprawdza remis (czy make_list_of_free_fields zwraca pustą listę), i dopiero wtedy kończy grę.
-# To jest ten brakujący "spoiwo" między funkcjami.
-# user_moves_examples świetnie nadaje się do testów enter_move, ale zwróć uwagę, że sama w sobie nie
-# zastępuje input() — musiałabyś ją jakoś "podłączyć" w miejsce input() w trakcie testu
-# (to wracamy do tematu mock/nadpisywania input, o którym mówiłyśmy).
-
-# poczatkowa plansza: komputer zaczyna, wiec jego pierwszy znak "X" jest juz na srodku
-game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
-
-# slownik laczy znak gracza z funkcja, ktora wykonuje jego ruch:
-# "O" (uzytkownik) -> enter_move, "X" (komputer) -> draw_move.
-# Nazwy funkcji sa tu tylko odwolaniami do nich (bez nawiasow), wiec nic sie jeszcze nie wykonuje.
-# Dzieki temu jeden kod w petli obsluguje obu graczy.
-players_moves = {"O": enter_move, "X": draw_move}
-
-# flaga informuje, czy gra sie zakonczyla; False oznacza, ze gra trwa
-end_of_game = False
-
-# glowna petla gry: kazdy jej obrot to jedna runda, czyli ruch uzytkownika i ruch komputera.
-# Konczy sie, gdy flaga zmieni wartosc na True (wygrana lub remis)
-while not end_of_game:
-
-    # petla for bierze gracza po kolei ze slownika, w kolejnosci wpisania kluczy.
-    # key to znak gracza, a value to funkcja, ktora wykonuje jego ruch.
-    # Komputer zrobil juz pierwszy ruch, wiec w pierwszej rundzie zaczyna "O"
-    for key, value in players_moves.items():
-
-        # pokazanie planszy przed ruchem gracza
-        display_board(game_board)
-        # value to funkcja przypisana graczowi, a nawiasy ja wywoluja:
-        # dla "O" wykona sie enter_move, dla "X" draw_move
-        value(game_board)
-
-        # sprawdzenie, czy gracz, ktory przed chwila zagral, wygral
-        if victory_for(game_board, key):
-            # pokazanie planszy z ostatnim, wygrywajacym ruchem
-            display_board(game_board)
-            print("Zwyciezyl gracz", key)
-            # break przerywa petle for, a flaga zatrzymuje petle while
-            # przy sprawdzaniu warunku na poczatku kolejnego obrotu
-            end_of_game = True
-            break
-
-        # sprawdzenie remisu: brak wolnych pol, a nikt nie wygral
-        if make_list_of_free_fields(game_board) == []:
-            # pokazanie zapelnionej planszy
-            display_board(game_board)
-            print("Jest remis. Zaden z graczy nie wygral.")
-            # tak samo jak przy wygranej: break konczy for, flaga konczy while
-            end_of_game = True
-            break
-
-
-# TESTY
-
-user_moves_board = [1, 3, "c", 12, -7, 4, 8]
+# user_moves_board = [1, 3, "c", 12, -7, 4, 8]
 #
 # used_move = []
 # free_moves = True
@@ -255,10 +229,8 @@ user_moves_board = [1, 3, "c", 12, -7, 4, 8]
 # draw_move(board)
 # display_board(board)
 # TESTY victory_for
-# v_board_1 = [["X", "X", "X"], ["O", "X", "O"], ["O", 8, 9]]
-# v_board_2 = [["X", "X", 3], ["O", "O", "O"], [7, 8, "X"]]
-# v_board_3 = [["O", "X", "X"], ["O", "X", "O"], ["O", 8, 9]]
-# v_board_4 = [["X", "X", "O"], ["O", "X", "O"], ["O", "O", 9]]
+
+# Testy
 # # lista zawierajaca wartosci do przetestowania
 # boards_for_tests = [v_board_1, v_board_2, v_board_3, v_board_4]
 # # przykladowe pola, gdzie uzytkownik moze wpisac znak 'O'
@@ -290,3 +262,61 @@ user_moves_board = [1, 3, "c", 12, -7, 4, 8]
 # result= victory_for(v_board_4, "X")
 #
 # print("Znak 'X'", result)
+
+if __name__ == "__main__":
+    # Przebieg gry
+    # WAZNE do zrobienia:
+    # Czego jeszcze brakuje, żeby to było grywalną całością: nie widzę tu jeszcze głównej pętli gry,
+    # która na przemian wywołuje enter_move i draw_move, po każdym ruchu sprawdza victory_for (dla obu graczy)
+    # oraz sprawdza remis (czy make_list_of_free_fields zwraca pustą listę), i dopiero wtedy kończy grę.
+    # To jest ten brakujący "spoiwo" między funkcjami.
+    # user_moves_examples świetnie nadaje się do testów enter_move, ale zwróć uwagę, że sama w sobie nie
+    # zastępuje input() — musiałabyś ją jakoś "podłączyć" w miejsce input() w trakcie testu
+    # (to wracamy do tematu mock/nadpisywania input, o którym mówiłyśmy).
+
+    #poczatkowa plansza: komputer zaczyna, wiec jego pierwszy znak "X" jest juz na srodku
+    game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+
+    # slownik laczy znak gracza z funkcja, ktora wykonuje jego ruch:
+    # "O" (uzytkownik) -> enter_move, "X" (komputer) -> draw_move.
+    # Nazwy funkcji sa tu tylko odwolaniami do nich (bez nawiasow), wiec nic sie jeszcze nie wykonuje.
+    # Dzieki temu jeden kod w petli obsluguje obu graczy.
+    players_moves = {"O": enter_move, "X": draw_move}
+
+    # flaga informuje, czy gra sie zakonczyla; False oznacza, ze gra trwa
+    end_of_game = False
+
+    # glowna petla gry: kazdy jej obrot to jedna runda, czyli ruch uzytkownika i ruch komputera.
+    # Konczy sie, gdy flaga zmieni wartosc na True (wygrana lub remis)
+    while not end_of_game:
+
+        # petla for bierze gracza po kolei ze slownika, w kolejnosci wpisania kluczy.
+        # key to znak gracza, a value to funkcja, ktora wykonuje jego ruch.
+        # Komputer zrobil juz pierwszy ruch, wiec w pierwszej rundzie zaczyna "O"
+        for key, value in players_moves.items():
+
+            # pokazanie planszy przed ruchem gracza
+            display_board(game_board)
+            # value to funkcja przypisana graczowi, a nawiasy ja wywoluja:
+            # dla "O" wykona sie enter_move, dla "X" draw_move
+            value(game_board)
+
+            # sprawdzenie, czy gracz, ktory przed chwila zagral, wygral
+            if victory_for(game_board, key):
+                # pokazanie planszy z ostatnim, wygrywajacym ruchem
+                display_board(game_board)
+                print("Zwyciezyl gracz", key)
+                # break przerywa petle for, a flaga zatrzymuje petle while
+                # przy sprawdzaniu warunku na poczatku kolejnego obrotu
+                end_of_game = True
+                break
+
+            # sprawdzenie remisu: brak wolnych pol, a nikt nie wygral
+            if make_list_of_free_fields(game_board) == []:
+                # pokazanie zapelnionej planszy
+                display_board(game_board)
+                print("Jest remis. Zaden z graczy nie wygral.")
+                # tak samo jak przy wygranej: break konczy for, flaga konczy while
+                end_of_game = True
+                break
+
