@@ -84,18 +84,72 @@ def enter_move(board, user_move=None):
                 print("Twój ruch nie miesci sie w zakresie 1-9. Sprobuj ponownie.")
 
 
-user_moves_board = [1, 3, "c", 12, -7, 4, 8]
+# Dane trzymasz w jednej liście krotek (wejście, oczekiwany wynik), a sama asercja jest napisana raz i wykonuje się
+# dla każdego przypadku z listy.
+# Co do Twojego pytania „czy enter_move też testować assertami" — tak, tylko tutaj assert sprawdza nie to,
+# co funkcja zwraca (bo enter_move nic nie zwraca), tylko stan planszy po jej wywołaniu. Pomyśl:
+# skoro enter_move modyfikuje board w miejscu, to po jej wywołaniu możesz sprawdzić assert board == oczekiwana_plansza.
+# Zanim przełożysz to na pętlę z wieloma scenariuszami na raz, mam dla Ciebie pytanie do przemyślenia,
+# bo to jest tu nieco trudniejsze niż przy victory_for: każdy scenariusz dla enter_move potrzebuje własnej,
+# świeżej planszy startowej (bo funkcja ją modyfikuje), a nie jednej wspólnej planszy używanej przez wszystkie
+# przypadki po kolei. Zastanów się, czy w swojej liście przypadki obok user_move i oczekiwanego wyniku, nie powinnaś
+# trzymać też osobnej planszy dla każdego scenariusza.
+# Zanim napiszesz pętlę, rozpisz najpierw te 3-4 scenariusze, o których już mówiłyśmy
+# (zły typ, poza zakresem, zajęte pole, poprawny ruch), każdy z: jaka plansza startowa, jaka lista
+# ruchów do enter_move (pamiętaj: zły ruch + poprawny na końcu, bo funkcja kończy się po pierwszym sukcesie),
+# jaka plansza oczekiwana na końcu. Pokaż mi tę listę, zanim przejdziemy do kodu.
+test_move = ["c", "0", "10", "5", "2"]
+game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+# Plansze startowe przed rozpoczeciem testow
+board_zly_typ = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+board_zly_zakres = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+board_zajete_pole = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+board_poprawny_ruch = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+board_zly_typ_po_tescie = [[1, 2, "O"], [4, "X", 6], [7, 8, 9]]
+board_zly_zakres_po_tescie = [[1, 2, 3], [4, "X", 6], ["O", 8, 9]]
+board_zajete_pole_po_tescie = [[1, 2, 3], [4, "X", "O"], [7, 8, 9]]
+board_poprawny_ruch_po_tescie = [[1, "O", 3], [4, "X", 6], [7, 8, 9]]
+
+# TODO: Spróbuj teraz dopisać do każdej z 4 scenariuszy (zły typ, zły zakres, zajęte pole, poprawny ruch od razu)
+#  trzy rzeczy razem: nazwę planszy startowej, listę wartości kończącą się sukcesem, i nazwę/zawartość oczekiwanej
+#  planszy końcowej. Dla "zły zakres" możesz zostawić jeden scenariusz z listą zawierającą obie złe wartości po kolei,
+#  np. ["0", "10", "5"], zamiast dwóch osobnych plansz — to dobry moment, żeby to uprościć.
+
+# Przypadki testowe do testowania ruchow uzytkownika.
+# Scenariusze obejmuja: zly typ - testuje styp str, zly zakres - testuje zakresy graniczne 0 i 10, zajete pole
+# - testuje pole 5 zajete przez znak "X", poprawny ruch - testuje pole 2, ktore znajduje sie na planszy i jest puste
+test_cases = [
+    (board_zly_typ, ["c", "3"], board_zly_typ_po_tescie),
+    (board_zly_zakres, ["0", "10", "7"], board_zly_zakres_po_tescie),
+    (board_zajete_pole, ["5", "6"], board_zajete_pole_po_tescie),
+    (board_poprawny_ruch, ["2"], board_poprawny_ruch_po_tescie)
+]
+
+
+from unittest.mock import patch
+
+@patch('builtins.input', side_effect=["c", "3"])
+def test_cos(mock_input):
+    # w środku tej funkcji, każde wywołanie input() w testowanym kodzie
+    # zwraca kolejno elemnty listy side_effect
+    enter_move(board_zly_typ)
+    assert board_zly_typ == board_zly_typ_po_tescie, "Znak 'O' nie zostal postawiony w zadnym polu."
+# test_cases = [(test_move[0], game_board), (test_move[1], game_board),(test_move[2], game_board),
+#              (test_move[3], game_board), (test_move[4], game_board_poprawny_ruch)]
+test_cos()
+user_moves_board = ["0", "10", "1", "9", "5", "1", "-2", "3.5", "c"]
 used_move = []
 # poczatkowa plansza: komputer zaczyna, wiec jego pierwszy znak "X" jest juz na srodku
-game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
+# game_board = [[1, 2, 3], [4, "X", 6], [7, 8, 9]]
 
-enter_move(game_board, -7)
 # flaga free_moves ustawiona na True, jesli zmieni wartosc na False oznacza to, ze
 # wszystkie przykladowe ruchy uzytkownika zostaly przetestowane
 # free_moves = True
 # while free_moves:
-#     # funkcja user_moves_examples zwraca ruch uzytkownika do przetestowania
+#     # funkcja user_moves_examples porownuje liste ruchow do zasymulowania, z tymi ktore
+#     # juz zostaly przetestowane i jesli trafi na ruch ktory nie zostal jeszcze przetestowany zwraca go
 #     move = user_moves_examples(user_moves_board, used_move)
+#     # zwrocony ruch zostaje uzyty jako argument do funkcji enter_move by zasymulowac ruch uzytkownika
 #     enter_move(board=game_board, user_move=move)
 #     # jesli listy user_moves_board i used_move sa takie same, tzn ze wszytskie
 #     # ruchy uzytkownika zostaly przetestowane i to koniec testow
@@ -103,7 +157,7 @@ enter_move(game_board, -7)
 #     if user_moves_board == used_move:
 #         free_moves = False
 #         print("Wszystkie ruchy uzytkownika zostaly przetestowane.")
-#     # print(used_move)
+    # print(used_move)
 
 
 def make_list_of_free_fields(board):
