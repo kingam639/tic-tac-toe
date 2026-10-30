@@ -1,13 +1,14 @@
 """Testy do gry w kółko i krzyżyk (tic_tac_toe.py).
 
-Sprawdzają victory_for, enter_move i make_list_of_free_fields za pomocą assert.
+Sprawdzają victory_for, enter_move, make_list_of_free_fields i draw_move za pomocą assert.
 Uruchomienie: python test_tic_tac_toe.py (plik leży obok tic_tac_toe.py).
 Jeśli na końcu pojawi się komunikat o przejściu testów, żaden assert nie zawiódł.
 """
 
 
-from tic_tac_toe import make_list_of_free_fields, victory_for, enter_move
+from tic_tac_toe import make_list_of_free_fields, victory_for, enter_move, draw_move
 from unittest.mock import patch
+from copy import deepcopy
 
 
 def test_victory_for(test_cases):
@@ -41,14 +42,95 @@ def test_make_list_of_free_fields(test_cases):
                                                 f"jest {result}, a powinno byc {expected_free_fields}")
 
 
+def test_draw_move_one_free_field(test_case):
+    """Funkcja testuje funkcje draw_move, gdy na planszy jest tylko jedno wolne pole. Sprawdza, czy po wstawieniu
+    'X' plansza zostanie zapelniona calkowicie."""
+    # rozpakowywanie listy z plansza do przetestowania i plansza oczekiwana po tescie
+    board_before_test, board_expected = test_case
+    # wywolanie funkcji draw_move na planszy testowej
+    draw_move(board_before_test)
+    assert board_before_test == board_expected, "Na ostatnim wolnym polu nie ma 'X'."
+
+
+def count_x(board):
+    """Funkcja przyjmuje tablice jako parametr, zlicza ile Xow znajduje sie na tablicy i zwraca ich liczbe."""
+    x_counter = 0
+    for row in board:
+        x_counter += row.count("X")
+    return x_counter
+
+
+def test_draw_move_many_free_fields(tested_board):
+    """Sprawdza draw_move na planszy z kilkoma wolnymi polami. Pole jest losowane, wiec zamiast porownania
+    z jedna plansza sprawdzam to, co musi byc prawda zawsze: na planszy jest o jeden 'X' wiecej,
+    o jedno wolne pole mniej, a 'X' stoi na polu, ktore bylo wolne. Funkcja zmienia plansze w miejscu,
+    wiec test czyta ja juz po zmianie."""
+
+    # 1. stan poczatkowy
+
+    # zliczanie X przed wykonaniem testu
+    x_before_test = count_x(tested_board)
+    # wywolanie funkcji make_list_of_free_fields, aby otrzymac liste niezapelnionych pol przed
+    # postawieniem na jednym z nich znaku 'X'
+    free_fields_start = make_list_of_free_fields(tested_board)
+
+    # tworzenie glebokiej kopii planszy, by wywolanie funkcji draw_move nie zmienilo oryginalnej planszy tested_board
+    tested_board_deepcopy = deepcopy(tested_board)
+
+    # 2. wywolanie funkcji draw_move na kopii planszy testowej
+    draw_move(tested_board_deepcopy)
+
+    # 3. stan koncowy
+
+    # zliczanie X po wykonaniu testu
+    x_after_test = count_x(tested_board_deepcopy)
+
+    # sprawdzanie, czy draw_move dodal dokladnie 1 'X' na planszy, liczba wszystkich 'X' po testach powinna byc
+    # o 1 wieksza niz przed testami
+    assert x_before_test + 1 == x_after_test, (f"Liczba X: bylo {x_before_test}, jest {x_after_test}, "
+                                               f"a powinno byc o 1 wiecej. Plansza po: {tested_board_deepcopy}")
+    # wywolanie funkcji make_list_of_free_fields, aby otrzymac liste niezapelnionych pol po postawieniu na
+    # jednym z nich znaku 'X' - liczba wolnych pol powinna byc zmniejszona o 1
+    free_fields_after = make_list_of_free_fields(tested_board_deepcopy)
+    # sprawdzenie, czy liczba wolnych pol po tescie zmniejszyla sie o 1
+    number_of_free_fields_start = len(free_fields_start)
+    number_of_free_fields_after = len(free_fields_after)
+    assert number_of_free_fields_start - 1 == number_of_free_fields_after, (f"Liczba wolnych pol na planszy: bylo "
+                                                                            f"{number_of_free_fields_start}, "
+                                                                            f"jest {number_of_free_fields_after}, "
+                                                                            f"a powinno byc o 1 mniej. "
+                                                                            f"Plansza po: {tested_board_deepcopy}")
+
+    # sprawdzenie, czy "X" pojawiło się na polu, które wcześniej było wolne
+    # szukam pola, ktore zostalo zajete przez znak 'X' porownujac pola, ktore byly wolne przed postawieniem znaku
+    # z polami, ktore sa wolne po postawieniu znaku
+    # filled_field ustawiona na None (cos jak flaga) pozwala uniknac NameError, jesli petla for nic nie znajdzie
+    filled_field = None
+    # jesli wywolanie funkcji draw_move spowodowalo, ze jedno z wolnych pol zostalo zajete, petla for zwraca to pole
+    for field in free_fields_start:
+        if field not in free_fields_after:
+            filled_field = field
+    assert filled_field is not None, (f"Zadne z wolnych pol nie zmienilo swojej wartosci, bylo: {free_fields_start}, "
+                                      f"jest {free_fields_after}. Plansza po: {tested_board_deepcopy}.")
+    row, column = filled_field
+    # sprawdzenie, czy na pozycji, ktora zostala zajeta znajduje sie 'X'
+    assert tested_board_deepcopy[row][column] == 'X', "Na wolnym polu nie postawiono znaku X."
+    # sprawdzenie, czy wszystkie znaki, ktore juz byly na planszy sa na tych samych polach na ktorych byly
+    # przed wstawieniem znaku X
+    # wstawiam z powrotem oryginalna wartosc pola, ktore zostalo zmienione na plansze „po” na te same współrzędne
+    tested_board_deepcopy[row][column] = tested_board[row][column]
+    assert tested_board_deepcopy == tested_board, (f"Po wywolaniu funkcji zmienily sie pola na planszy. Plansza przed "
+                                                   f"{tested_board}, plansza po: {tested_board_deepcopy}")
+
+
 # Testy funkcji victory_for(board,sign) z assert
 
 # wygrana w każdej z 8 linii - Wygraną można zrobić na 8 sposobów: 3 wiersze, 3 kolumny i 2 przekątne.
 
-# Każda plansza dostaje dwa assert: jeden dla gracza, który wygrał (oczekuję True),
-# i jeden dla jego przeciwnika na tej samej planszy (oczekuję False).
+# Każda plansza występuje w dwóch przypadkach testowych: raz dla gracza, który wygrał (oczekuję True),
+# i raz dla jego przeciwnika na tej samej planszy (oczekuję False).
 # Oczekiwany wynik ustalam z zasad gry, zanim uruchomię kod, a komunikat
-# po przecinku pokazuje się tylko wtedy, gdy test zawiedzie.
+# pokazuje się tylko wtedy, gdy test zawiedzie.
 
 win_board_1 = [["X", "X", "X"], ["O", "X", "O"], ["O", 8, 9]]
 win_board_2 = [["X", "X", 3], ["O", "O", "O"], [7, 8, "X"]]
@@ -127,6 +209,7 @@ enter_move_test_cases = [
 
 
 # Testy funkcji make_list_of_free_fields(board) z assert
+
 # plansze opisujace rozne scenariusze gry - 1. poczatek gry - plansza jest niezapelniona,
 # 2. srodek gry - plansza jest czesciowo zapelniona, 3. koniec gry - nie ma wolnych pol na planszy
 # i 4. wartosc graniczna - na planszy zostalo dokladnie jedno wolne pole
@@ -150,9 +233,34 @@ free_fields_test_cases = [(board_game_start, free_fields_game_start),
                           (board_full, free_fields_full),
                           (board_one_free, free_fields_one)]
 
-test_victory_for(victory_for_test_cases)
-test_enter_move()
-test_make_list_of_free_fields(free_fields_test_cases)
 
-# komunikat o przejsciu testow wyswietli sie, jesli zaden assert nie wyswietli bledu
-print("Wszystkie testy przeszly.")
+# Testy funkcji draw_move(board) z assert
+
+# plansze opisujace rozne scenariusze gry - gdy jest dokladnie jedno wolne pole i kilka wolnych pol
+
+# wartosc graniczna: na planszy zostalo dokladnie jedno wolne pole (pole 6);
+# osobna plansza (a nie board_one_free), bo draw_move zmienia ja w miejscu
+board_one_free_field = [["X", "O", "X"], ["O", "X", 6], ["O", "X", "O"]]
+# plansza z oczekiwanym wynikiem - na wolnym polu znajduje sie 'X'
+board_one_free_field_expected = [["X", "O", "X"], ["O", "X", "X"], ["O", "X", "O"]]
+board_one_free_field_test_case = [board_one_free_field, board_one_free_field_expected]
+
+# na planszy jest kilka wolnych pol
+board_with_many_free_fields = [["X", 2, "O"], [4, "X", 6], [7, "X", "O"]]
+
+
+if __name__ == "__main__":
+    test_victory_for(victory_for_test_cases)
+    test_enter_move()
+    test_make_list_of_free_fields(free_fields_test_cases)
+
+    # testowanie planszy z 1 wolnym polem
+    test_draw_move_one_free_field(board_one_free_field_test_case)
+
+    # testowanie planszy z kilkoma wolnymi polami: pole jest losowane, wiec jedno wywolanie moze przejsc
+    # przypadkiem, dlatego powtarzam test 50 razy; kazde wywolanie dziala na swiezej, gleboka kopii planszy
+    for _ in range(50):
+        test_draw_move_many_free_fields(board_with_many_free_fields)
+
+    # komunikat o przejsciu testow wyswietli sie, jesli zaden assert nie wyswietli bledu
+    print("Wszystkie testy przeszly.")
